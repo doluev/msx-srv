@@ -14,7 +14,7 @@ console.log('Starting server...');
 const startData = {
   "name": "MSX Player",
   "version": "1.0.0",
-  "parameter": "menu:request:interaction:init"
+  "parameter": "/msx/menu.json"
 };
 
 const menuData = {
