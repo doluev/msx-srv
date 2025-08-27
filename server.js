@@ -35,7 +35,7 @@ const startData = {
             {
               "important": true,
               "key": "enter",
-              "action": "content:request:load:menu.json"
+              "action": "content:request:load:/msx/menu.json"
             }
           ]
         },
@@ -76,7 +76,7 @@ const menuData = {
         {
           "important": true,
           "key": "enter",
-          "action": "interaction:load:request:interaction:search_form"
+          "action": "interaction:load:request:interaction:/msx/interaction/search_form"
         }
       ]
     }
@@ -93,10 +93,10 @@ app.get('/', (req, res) => {
   res.json({
     message: 'MSX Player Server is running!',
     endpoints: [
-      '/start.json',
-      '/menu.json', 
-      '/interaction/search_form',
-      '/search_results?query=<search_term>',
+      '/msx/start.json',
+      '/msx/menu.json', 
+      '/msx/interaction/search_form',
+      '/msx/search_results?query=<search_term>',
       '/health'
     ]
   });
@@ -157,7 +157,7 @@ const searchFormData = {
         {
           "important": true,
           "key": "enter",
-          "action": "interaction:commit:request:search_results?query={search_query}"
+          "action": "interaction:commit:request:/msx/search_results?query={search_query}"
         }
       ]
     },
@@ -245,9 +245,9 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`MSX Player Server running on port ${PORT}`);
   console.log(`Available endpoints:`);
-  console.log(`- GET /start.json`);
-  console.log(`- GET /menu.json`);
-  console.log(`- GET /interaction/search_form`);
-  console.log(`- GET /search_results?query=<search_term>`);
+  console.log(`- GET /msx/start.json`);
+  console.log(`- GET /msx/menu.json`);
+  console.log(`- GET /msx/interaction/search_form`);
+  console.log(`- GET /msx/search_results?query=<search_term>`);
   console.log(`- GET /health`);
 });
