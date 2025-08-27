@@ -20,19 +20,63 @@ const startData = {
 };
 
 const menuData = {
-  "name": "Search Menu",
-  "headline": "Поиск контента",
-  "menu": [
+  "type": "list",
+  "headline": "WALS_MSX 2.5",
+  "extension": "{col:msx-white}{ico:msx-white:event} {now:date:D, M d, yyyy}{tb}{ico:msx-white:access-time} {now:time:hh:mm}",
+  "dictionary": "https://wals09.github.io/msx/dictionary.json",
+  "preload": "next",
+  "captionUnderlay": 1,
+  "underlay": {
+    "items": [
+      {
+        "type": "space",
+        "round": false,
+        "layout": "0,3,12,3",
+        "offset": "-1.25,-0.6,2,1.17",
+        "color": "msx-black-soft"
+      },
+      {
+        "type": "space",
+        "round": false,
+        "layout": "0,0,12,1",
+        "offset": "-1,0,2,-0.8",
+        "color": "red"
+      },
+      {
+        "id": "text",
+        "type": "space",
+        "layout": "1,0,6,3",
+        "offset": "-1,0.5,1,0",
+        "headline": "",
+        "text": ""
+      }
+    ]
+  },
+  "template": {
+    "type": "default",
+    "layout": "0,0,1,1",
+    "area": "0,0,12,3",
+    "offset": "0,2.5,0,0",
+    "trigger:back": "player:stop",
+    "color": "msx-glass",
+    "imageFiller": "cover"
+  },
+  "items": [
     {
-      "type": "separator",
-      "label": "Поиск"
-    },
-    {
-      "type": "item",
-      "title": "Найти контент",
-      "description": "Поиск фильмов и сериалов",
-      "icon": "search",
-      "action": "menu:request:interaction:menu@http://atodo.fun/fun.html"
+      "color": "transparent",
+      "image": "https://wals09.github.io/msx/logon/getstv.png",
+      "selection": {
+        "important": true,
+        "action": "update:content:underlay:text",
+        "data": {
+          "headline": "GetsTV",
+          "text": "Фильмы и Мультфильмы. Крупнейшая база на любой вкус, обновляется ежедневно, новинки появляются сразу после премьеры в кинотеатре."
+        }
+      },
+      "action": "panel:http://lg.getstv.ru/msx/msx.json",
+      "properties": {
+        "trigger:back": "player:stop"
+      }
     }
   ]
 };
@@ -123,7 +167,7 @@ app.get('/msx/interaction/search.html', (req, res) => {
     <title>Search Interaction Plugin</title>
     <script src="/msx/tvx-plugin.min.js"></script>
     <script>
-        window.onload = function() {
+        (function() {
             console.log("Checking for TVXInteractionPlugin...");
             if (typeof TVXInteractionPlugin === "undefined") {
                 console.error("TVXInteractionPlugin is not defined. Check if tvx-plugin.min.js loaded correctly.");
@@ -131,15 +175,6 @@ app.get('/msx/interaction/search.html', (req, res) => {
             }
             console.log("TVXInteractionPlugin type: " + typeof TVXInteractionPlugin);
             try {
-                var plugin = new TVXInteractionPlugin();
-                plugin.Setup({
-                    id: "search.interaction.plugin",
-                    version: "1.0.0",
-                    name: "Search Plugin",
-                    description: "Handles content search",
-                    icon: "search"
-                });
-
                 var handler = {
                     handleRequest: function(dataId, data, callback) {
                         console.log("Request received: " + dataId, data);
@@ -184,11 +219,12 @@ app.get('/msx/interaction/search.html', (req, res) => {
                     }
                 };
 
-                plugin.setupHandler(handler);
+                TVXInteractionPlugin.setupHandler(handler);
+                TVXInteractionPlugin.init();
             } catch (e) {
                 console.error("Error initializing TVXInteractionPlugin:", e);
             }
-        };
+        })();
     </script>
 </head>
 <body>
