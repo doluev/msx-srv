@@ -30,12 +30,12 @@ const menuData = {
       "title": "Найти контент",
       "description": "Поиск фильмов и сериалов",
       "icon": "search",
-      "action": "interaction:load:request:interaction:https://msx-srv.onrender.com/msx/interaction/search_form"
+      "action": "content:request:interaction:init@https://msx-srv.onrender.com/msx/interaction/search.html"
     }
   ]
 };
 
-// Search form data for interaction plugin
+// Search form data for interaction plugin (now embedded in the HTML)
 const searchFormData = {
   "type": "list",
   "focus": true,
@@ -85,7 +85,7 @@ const searchFormData = {
         {
           "important": true,
           "key": "enter",
-          "action": "interaction:commit:request:https://msx-srv.onrender.com/msx/search_results?query={search_query}"
+          "action": "interaction:commit:content:request:interaction:search@{query:{search_query}}"
         }
       ]
     },
@@ -135,45 +135,81 @@ app.get('/msx/menu.json', (req, res) => {
 
 console.log('MSX routes registered...');
 
-// Additional MSX endpoints
-app.get('/msx/interaction/search_form', (req, res) => {
-  console.log('MSX search form endpoint called');
-  res.setHeader('Content-Type', 'application/json');
-  res.json(searchFormData);
+// Interaction plugin HTML
+app.get('/msx/interaction/search.html', (req, res) => {
+  console.log('MSX interaction search.html endpoint called');
+  res.setHeader('Content-Type', 'text/html');
+  res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Interaction Plugin</title>
+    <script src="//msx.benzac.de/js/tvx-plugin.min.js"></script>
+    <script>
+        (function() {
+            var plugin = new TVXInteractionPlugin();
+            plugin.Setup({
+                id: "search.interaction.plugin",
+                version: "1.0.0",
+                name: "Search Plugin",
+                description: "Handles content search",
+                icon: "search"
+            });
+
+            var handler = {
+                handleRequest: function(dataId, data, callback) {
+                    if (dataId === "init") {
+                        var searchForm = ${JSON.stringify(searchFormData)};
+                        callback(true, searchForm);
+                    } else if (dataId === "search") {
+                        var query = (data && data.query) || "";
+                        if (!query.trim()) {
+                            var errorData = {
+                                "type": "list",
+                                "headline": "Ошибка поиска",
+                                "items": [
+                                    {
+                                        "title": "Пустой запрос",
+                                        "description": "Пожалуйста, введите поисковый запрос"
+                                    }
+                                ]
+                            };
+                            callback(true, errorData);
+                        } else {
+                            var resultsData = {
+                                "name": \`Результаты поиска: "\${query}"\`,
+                                "type": "list",
+                                "headline": \`Найдено для "\${query}"\`,
+                                "items": [
+                                    {
+                                        "title": \`Результат для "\${query}"\`,
+                                        "description": "Тестовый результат поиска"
+                                    }
+                                ]
+                            };
+                            callback(true, resultsData);
+                        }
+                    } else {
+                        callback(false, "Unknown request: " + dataId);
+                    }
+                }
+            };
+
+            plugin.setupHandler(handler);
+        })();
+    </script>
+</head>
+<body>
+</body>
+</html>
+  `);
 });
 
-app.get('/msx/search_results', (req, res) => {
-  console.log('MSX search results endpoint called');
-  const query = req.query.query || '';
-  
-  if (!query.trim()) {
-    return res.status(400).json({
-      "type": "list",
-      "headline": "Ошибка поиска",
-      "items": [
-        {
-          "title": "Пустой запрос",
-          "description": "Пожалуйста, введите поисковый запрос"
-        }
-      ]
-    });
-  }
+console.log('Interaction plugin route registered...');
 
-  res.setHeader('Content-Type', 'application/json');
-  res.json({
-    "name": `Результаты поиска: "${query}"`,
-    "type": "list",
-    "headline": `Найдено для "${query}"`,
-    "items": [
-      {
-        "title": `Результат для "${query}"`,
-        "description": "Тестовый результат поиска"
-      }
-    ]
-  });
-});
-
-console.log('Additional MSX routes registered...');
+// Remove or comment out unused endpoints if desired
+// app.get('/msx/interaction/search_form', ...);
+// app.get('/msx/search_results', ...);
 
 // 404 handler
 app.use((req, res) => {
