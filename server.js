@@ -21,62 +21,11 @@ const startData = {
 
 const menuData = {
   "type": "list",
-  "headline": "WALS_MSX 2.5",
-  "extension": "{col:msx-white}{ico:msx-white:event} {now:date:D, M d, yyyy}{tb}{ico:msx-white:access-time} {now:time:hh:mm}",
-  "dictionary": "https://wals09.github.io/msx/dictionary.json",
-  "preload": "next",
-  "captionUnderlay": 1,
-  "underlay": {
-    "items": [
-      {
-        "type": "space",
-        "round": false,
-        "layout": "0,3,12,3",
-        "offset": "-1.25,-0.6,2,1.17",
-        "color": "msx-black-soft"
-      },
-      {
-        "type": "space",
-        "round": false,
-        "layout": "0,0,12,1",
-        "offset": "-1,0,2,-0.8",
-        "color": "red"
-      },
-      {
-        "id": "text",
-        "type": "space",
-        "layout": "1,0,6,3",
-        "offset": "-1,0.5,1,0",
-        "headline": "",
-        "text": ""
-      }
-    ]
-  },
-  "template": {
-    "type": "default",
-    "layout": "0,0,1,1",
-    "area": "0,0,12,3",
-    "offset": "0,2.5,0,0",
-    "trigger:back": "player:stop",
-    "color": "msx-glass",
-    "imageFiller": "cover"
-  },
+  "headline": "Фильм",
   "items": [
     {
-      "color": "transparent",
       "image": "https://wals09.github.io/msx/logon/getstv.png",
-      "selection": {
-        "important": true,
-        "action": "update:content:underlay:text",
-        "data": {
-          "headline": "Фильм",
-          "text": "Воспроизведение фильма по m3u8 ссылке"
-        }
-      },
-      "action": "video:play:https://hid10598ton.redcdn.org/hls/mpegts/Kv7l5lK5edlT6ZlYI4Yu/858/1836763441/w-3TgUT8f2AOSMyEFIh5KA/1756377638/2025/8/qkkzDrLLFKm1Q1PQn1IZ_720.mp4/master-v1-a1.m3u8",
-      "properties": {
-        "trigger:back": "player:stop"
-      }
+      "action": "video:play:https://hid10598ton.redcdn.org/hls/mpegts/Kv7l5lK5edlT6ZlYI4Yu/858/1836763441/w-3TgUT8f2AOSMyEFIh5KA/1756377638/2025/8/qkkzDrLLFKm1Q1PQn1IZ_720.mp4/master-v1-a1.m3u8"
     }
   ]
 };
