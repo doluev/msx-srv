@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: msx-player-server
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        fromService:
+          type: web
+          name: msx-player-server
+          property: port
+    autoDeploy: true
+    branch: main
+    rootDir: .
+    scaling:
+      minInstances: 0
+      maxInstances: 1
+    disk:
+      name: msx-player-data
+      mountPath: /opt/render/project/data
+      sizeGB: 1
+    headers:
+      - path: /*
+        name: Access-Control-Allow-Origin
+        value: "*"
+      - path: /*
+        name: Access-Control-Allow-Methods
+        value: "GET, POST, PUT, DELETE, OPTIONS"
+      - path: /*
+        name: Access-Control-Allow-Headers
+        value: "Content-Type, Authorization"
+      - path: "/msx/*.json"
+        name: Content-Type
+        value: "application/json; charset=utf-8"
+      - path: "/msx/*.json"
+        name: Cache-Control
+        value: "no-cache, no-store, must-revalidate"
