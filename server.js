@@ -32,7 +32,7 @@ const menuData = {
       "title": "Найти контент",
       "description": "Поиск фильмов и сериалов",
       "icon": "search",
-      "action": "content:request:interaction:init@https://msx-srv.onrender.com/msx/interaction/search.html"
+      "action": "menu:request:interaction:menu@http://atodo.fun/fun.html"
     }
   ]
 };
