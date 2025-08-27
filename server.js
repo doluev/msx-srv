@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -7,6 +8,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/msx', express.static(path.join(__dirname, 'public'))); // Служим статические файлы из папки public
 
 console.log('Starting server...');
 
@@ -19,7 +21,7 @@ const startData = {
 
 const menuData = {
   "name": "Search Menu",
-  "headline": "Поиск контента", 
+  "headline": "Поиск контента",
   "menu": [
     {
       "type": "separator",
@@ -35,7 +37,7 @@ const menuData = {
   ]
 };
 
-// Search form data for interaction plugin (now embedded in the HTML)
+// Simplified search form data
 const searchFormData = {
   "type": "list",
   "focus": true,
@@ -53,10 +55,9 @@ const searchFormData = {
     {
       "layout": "0,1,12,1",
       "type": "control",
-      "control": {
-        "type": "input",
-        "key": "search_query",
-        "label": "Поисковый запрос:",
+      "label": "Поисковый запрос:",
+      "action": "input:search_query",
+      "data": {
         "placeholder": "Введите название фильма или сериала..."
       }
     },
@@ -65,38 +66,18 @@ const searchFormData = {
       "type": "space"
     },
     {
-      "layout": "0,3,12,6",
-      "type": "control",
-      "control": {
-        "type": "keyboard",
-        "target": "search_query"
-      }
-    },
-    {
-      "layout": "0,9,12,1",
-      "type": "space"
-    },
-    {
-      "layout": "4,10,4,1",
+      "layout": "4,3,4,1",
       "type": "button",
       "label": "🔍 Поиск",
       "alignment": "center",
-      "selection": [
-        {
-          "important": true,
-          "key": "enter",
-          "action": "interaction:commit:content:request:interaction:search@{query:{search_query}}"
-        }
-      ]
+      "action": "content:request:interaction:search@https://msx-srv.onrender.com/msx/interaction/search.html?query={search_query}"
     },
     {
-      "layout": "0,11,12,1",
+      "layout": "0,4,12,1",
       "type": "space"
     }
   ]
 };
-
-console.log('Extended data objects created...');
 
 console.log('Data objects created...');
 
@@ -108,6 +89,7 @@ app.get('/', (req, res) => {
     endpoints: [
       '/msx/start.json',
       '/msx/menu.json',
+      '/msx/tvx-plugin.min.js',
       '/health'
     ]
   });
@@ -118,9 +100,6 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-console.log('Basic routes registered...');
-
-// MSX endpoints
 app.get('/msx/start.json', (req, res) => {
   console.log('MSX start.json endpoint called');
   res.setHeader('Content-Type', 'application/json');
@@ -133,70 +112,83 @@ app.get('/msx/menu.json', (req, res) => {
   res.json(menuData);
 });
 
-console.log('MSX routes registered...');
-
-// Interaction plugin HTML
 app.get('/msx/interaction/search.html', (req, res) => {
   console.log('MSX interaction search.html endpoint called');
   res.setHeader('Content-Type', 'text/html');
+  res.setHeader('X-Frame-Options', 'ALLOWALL');
   res.send(`
 <!DOCTYPE html>
 <html>
 <head>
     <title>Search Interaction Plugin</title>
-    <script src="//msx.benzac.de/js/tvx-plugin.min.js"></script>
+    <script src="/msx/tvx-plugin.min.js"></script>
     <script>
-        (function() {
-            var plugin = new TVXInteractionPlugin();
-            plugin.Setup({
-                id: "search.interaction.plugin",
-                version: "1.0.0",
-                name: "Search Plugin",
-                description: "Handles content search",
-                icon: "search"
-            });
+        window.onload = function() {
+            console.log("Checking for TVXInteractionPlugin...");
+            if (typeof TVXInteractionPlugin === "undefined") {
+                console.error("TVXInteractionPlugin is not defined. Check if tvx-plugin.min.js loaded correctly.");
+                return;
+            }
+            console.log("TVXInteractionPlugin type: " + typeof TVXInteractionPlugin);
+            try {
+                var plugin = new TVXInteractionPlugin();
+                plugin.Setup({
+                    id: "search.interaction.plugin",
+                    version: "1.0.0",
+                    name: "Search Plugin",
+                    description: "Handles content search",
+                    icon: "search"
+                });
 
-            var handler = {
-                handleRequest: function(dataId, data, callback) {
-                    if (dataId === "init") {
-                        var searchForm = ${JSON.stringify(searchFormData)};
-                        callback(true, searchForm);
-                    } else if (dataId === "search") {
-                        var query = (data && data.query) || "";
-                        if (!query.trim()) {
-                            var errorData = {
-                                "type": "list",
-                                "headline": "Ошибка поиска",
-                                "items": [
-                                    {
-                                        "title": "Пустой запрос",
-                                        "description": "Пожалуйста, введите поисковый запрос"
-                                    }
-                                ]
-                            };
-                            callback(true, errorData);
+                var handler = {
+                    handleRequest: function(dataId, data, callback) {
+                        console.log("Request received: " + dataId, data);
+                        if (dataId === "init") {
+                            var searchForm = ${JSON.stringify(searchFormData)};
+                            console.log("Returning search form:", searchForm);
+                            callback(true, searchForm);
+                        } else if (dataId === "search") {
+                            var query = (data && data.query) || "";
+                            if (!query.trim()) {
+                                var errorData = {
+                                    "type": "list",
+                                    "headline": "Ошибка поиска",
+                                    "items": [
+                                        {
+                                            "title": "Пустой запрос",
+                                            "description": "Пожалуйста, введите поисковый запрос"
+                                        }
+                                    ]
+                                };
+                                console.log("Returning error data:", errorData);
+                                callback(true, errorData);
+                            } else {
+                                var resultsData = {
+                                    "name": \`Результаты поиска: "\${query}"\`,
+                                    "type": "list",
+                                    "headline": \`Найдено для "\${query}"\`,
+                                    "items": [
+                                        {
+                                            "title": \`Результат для "\${query}"\`,
+                                            "description": "Тестовый результат поиска"
+                                        }
+                                    ]
+                                };
+                                console.log("Returning search results:", resultsData);
+                                callback(true, resultsData);
+                            }
                         } else {
-                            var resultsData = {
-                                "name": \`Результаты поиска: "\${query}"\`,
-                                "type": "list",
-                                "headline": \`Найдено для "\${query}"\`,
-                                "items": [
-                                    {
-                                        "title": \`Результат для "\${query}"\`,
-                                        "description": "Тестовый результат поиска"
-                                    }
-                                ]
-                            };
-                            callback(true, resultsData);
+                            console.log("Unknown request: " + dataId);
+                            callback(false, "Unknown request: " + dataId);
                         }
-                    } else {
-                        callback(false, "Unknown request: " + dataId);
                     }
-                }
-            };
+                };
 
-            plugin.setupHandler(handler);
-        })();
+                plugin.setupHandler(handler);
+            } catch (e) {
+                console.error("Error initializing TVXInteractionPlugin:", e);
+            }
+        };
     </script>
 </head>
 <body>
@@ -206,10 +198,6 @@ app.get('/msx/interaction/search.html', (req, res) => {
 });
 
 console.log('Interaction plugin route registered...');
-
-// Remove or comment out unused endpoints if desired
-// app.get('/msx/interaction/search_form', ...);
-// app.get('/msx/search_results', ...);
 
 // 404 handler
 app.use((req, res) => {
