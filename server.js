@@ -18,9 +18,21 @@ const startData = {
 };
 
 const menuData = {
-  "name": "Search",
-  "type": "list",
-  "headline": "Поиск контента"
+  "name": "Search Menu",
+  "headline": "Поиск контента", 
+  "menu": [
+    {
+      "type": "separator",
+      "label": "Поиск"
+    },
+    {
+      "type": "item",
+      "title": "Найти контент",
+      "description": "Поиск фильмов и сериалов",
+      "icon": "search",
+      "action": "info:Поиск будет добавлен позже"
+    }
+  ]
 };
 
 console.log('Data objects created...');
