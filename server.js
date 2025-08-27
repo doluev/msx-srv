@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -8,57 +7,19 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
 
-// Sample start.json content
+console.log('Starting server...');
+
+// Simple test data
 const startData = {
   "name": "MSX Player",
   "version": "1.0.0",
-  "parameter": "menu:https://msx-srv.onrender.com/msx/menu.json",
-  "dictionary": "https://msx.benzac.de/services/dict.json",
-  "pages": [
-    {
-      "name": "Main Menu",
-      "type": "pages",
-      "headline": "Welcome to MSX Player",
-      "template": {
-        "type": "separate",
-        "layout": "0,0,2,4",
-        "icon": "movie",
-        "color": "msx-glass"
-      },
-      "items": [
-        {
-          "title": "Movies",
-          "titleFooter": "Browse Movies",
-          "selection": [
-            {
-              "important": true,
-              "key": "enter",
-              "action": "content:request:load:https://msx-srv.onrender.com/msx/menu.json"
-            }
-          ]
-        },
-        {
-          "title": "TV Shows",
-          "titleFooter": "Browse TV Shows",
-          "selection": [
-            {
-              "important": true,
-              "key": "enter",
-              "action": "info:TV Shows coming soon!"
-            }
-          ]
-        }
-      ]
-    }
-  ]
+  "parameter": "menu:https://msx-srv.onrender.com/msx/menu.json"
 };
 
-// Sample menu.json content - MSX Menu format
 const menuData = {
   "name": "Search Menu",
-  "headline": "Поиск контента",
+  "headline": "Поиск контента", 
   "menu": [
     {
       "type": "separator",
@@ -66,43 +27,13 @@ const menuData = {
     },
     {
       "type": "item",
-      "title": "Поиск фильмов и сериалов",
-      "description": "Найти контент по названию",
+      "title": "Найти контент",
+      "description": "Поиск фильмов и сериалов",
       "icon": "search",
       "action": "interaction:load:request:interaction:https://msx-srv.onrender.com/msx/interaction/search_form"
-    },
-    {
-      "type": "separator", 
-      "label": "Дополнительно"
-    },
-    {
-      "type": "item",
-      "title": "О приложении",
-      "description": "Информация о MSX Player сервере",
-      "icon": "info",
-      "action": "info:MSX Player Server v1.0"
     }
   ]
 };
-
-// Routes
-app.get('/', (req, res) => {
-  res.json({
-    message: 'MSX Player Server is running!',
-    endpoints: [
-      '/msx/start.json',
-      '/msx/menu.json', 
-      '/msx/interaction/search_form',
-      '/msx/search_results?query=<search_term>',
-      '/health'
-    ]
-  });
-});
-
-app.get('/start.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.json(startData);
-});
 
 // Search form data for interaction plugin
 const searchFormData = {
@@ -165,86 +96,94 @@ const searchFormData = {
   ]
 };
 
-// Sample search results data
-const getSearchResults = (query) => ({
-  "name": `Результаты поиска: "${query}"`,
-  "type": "list",
-  "headline": `Найдено для "${query}"`,
-  "template": {
-    "type": "separate",
-    "layout": "0,0,2,4",
-    "icon": "movie",
-    "color": "msx-glass"
-  },
-  "items": [
-    {
-      "title": `Результат 1 для "${query}"`,
-      "titleFooter": "Драма • 2023 • 2ч 15мин",
-      "description": `Фильм, соответствующий запросу "${query}". Отличный сюжет и актёрская игра.`,
-      "image": "https://via.placeholder.com/300x450/2196F3/ffffff?text=Фильм+1",
-      "selection": [
-        {
-          "important": true,
-          "key": "enter",
-          "action": "video:https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4"
-        }
-      ]
-    },
-    {
-      "title": `Результат 2 для "${query}"`,
-      "titleFooter": "Комедия • 2022 • 1ч 45мин", 
-      "description": `Комедия по запросу "${query}". Веселый и легкий фильм для всей семьи.`,
-      "image": "https://via.placeholder.com/300x450/FF9800/ffffff?text=Фильм+2",
-      "selection": [
-        {
-          "important": true,
-          "key": "enter", 
-          "action": "video:https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4"
-        }
-      ]
-    },
-    {
-      "title": `Результат 3 для "${query}"`,
-      "titleFooter": "Боевик • 2023 • 2ч 30мин",
-      "description": `Боевик, найденный по запросу "${query}". Захватывающие сцены действий.`,
-      "image": "https://via.placeholder.com/300x450/4CAF50/ffffff?text=Фильм+3",
-      "selection": [
-        {
-          "important": true,
-          "key": "enter",
-          "action": "video:https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_5mb.mp4"
-        }
-      ]
-    }
-  ],
-  "options": {
-    "caption": {
-      "text": `Показаны результаты для запроса: "${query}"`
-    }
-  }
+console.log('Extended data objects created...');
+
+console.log('Data objects created...');
+
+// Routes
+app.get('/', (req, res) => {
+  console.log('Root endpoint called');
+  res.json({
+    message: 'MSX Player Server is running!',
+    endpoints: [
+      '/msx/start.json',
+      '/msx/menu.json',
+      '/health'
+    ]
+  });
 });
 
 app.get('/health', (req, res) => {
+  console.log('Health endpoint called');
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Error handling
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+console.log('Basic routes registered...');
+
+// MSX endpoints
+app.get('/msx/start.json', (req, res) => {
+  console.log('MSX start.json endpoint called');
+  res.setHeader('Content-Type', 'application/json');
+  res.json(startData);
 });
+
+app.get('/msx/menu.json', (req, res) => {
+  console.log('MSX menu.json endpoint called');
+  res.setHeader('Content-Type', 'application/json');
+  res.json(menuData);
+});
+
+console.log('MSX routes registered...');
+
+// Additional MSX endpoints
+app.get('/msx/interaction/search_form', (req, res) => {
+  console.log('MSX search form endpoint called');
+  res.setHeader('Content-Type', 'application/json');
+  res.json(searchFormData);
+});
+
+app.get('/msx/search_results', (req, res) => {
+  console.log('MSX search results endpoint called');
+  const query = req.query.query || '';
+  
+  if (!query.trim()) {
+    return res.status(400).json({
+      "type": "list",
+      "headline": "Ошибка поиска",
+      "items": [
+        {
+          "title": "Пустой запрос",
+          "description": "Пожалуйста, введите поисковый запрос"
+        }
+      ]
+    });
+  }
+
+  res.setHeader('Content-Type', 'application/json');
+  res.json({
+    "name": `Результаты поиска: "${query}"`,
+    "type": "list",
+    "headline": `Найдено для "${query}"`,
+    "items": [
+      {
+        "title": `Результат для "${query}"`,
+        "description": "Тестовый результат поиска"
+      }
+    ]
+  });
+});
+
+console.log('Additional MSX routes registered...');
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ error: 'Endpoint not found' });
+  console.log('404 for path:', req.path);
+  res.status(404).json({ error: 'Endpoint not found', path: req.path });
 });
 
 app.listen(PORT, () => {
   console.log(`MSX Player Server running on port ${PORT}`);
-  console.log(`Available endpoints:`);
-  console.log(`- GET /msx/start.json`);
-  console.log(`- GET /msx/menu.json`);
-  console.log(`- GET /msx/interaction/search_form`);
-  console.log(`- GET /msx/search_results?query=<search_term>`);
-  console.log(`- GET /health`);
+  console.log('All endpoints should be available now');
 });
+
+console.log('Server setup complete');
