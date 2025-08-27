@@ -69,11 +69,11 @@ const menuData = {
         "important": true,
         "action": "update:content:underlay:text",
         "data": {
-          "headline": "GetsTV",
-          "text": "Фильмы и Мультфильмы. Крупнейшая база на любой вкус, обновляется ежедневно, новинки появляются сразу после премьеры в кинотеатре."
+          "headline": "Фильм",
+          "text": "Воспроизведение фильма по m3u8 ссылке"
         }
       },
-      "action": "panel:http://lg.getstv.ru/msx/msx.json",
+      "action": "video:play:https://hid10598ton.redcdn.org/hls/mpegts/Kv7l5lK5edlT6ZlYI4Yu/858/1836763441/w-3TgUT8f2AOSMyEFIh5KA/1756377638/2025/8/qkkzDrLLFKm1Q1PQn1IZ_720.mp4/master-v1-a1.m3u8",
       "properties": {
         "trigger:back": "player:stop"
       }
