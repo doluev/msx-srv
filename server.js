@@ -14,7 +14,7 @@ console.log('Starting server...');
 const startData = {
   "name": "MSX Player",
   "version": "1.0.0",
-  "parameter": "/msx/menu.json"
+  "parameter": "https://msx-srv.onrender.com/msx/menu.json"
 };
 
 const menuData = {
